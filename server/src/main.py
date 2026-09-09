@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
+import src.models  # Importa i modelli per registrare le tabelle nel database
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Inizializza le tabelle all'avvio dell'applicazione se non presenti
+    Base.metadata.create_all(bind=engine)
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
