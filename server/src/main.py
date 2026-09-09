@@ -1,7 +1,10 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
-import src.models  # Importa i modelli per registrare le tabelle nel database
+from src.core.database import Base, engine
+import src.models  # Assicura che i modelli vengano registrati nei metadati di Base
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -9,14 +12,15 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     yield
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    docs_url="/docs",  # Swagger UI
+    docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
-# Middleware CORS (come avevi in app.use("*", cors(...)) su Express)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -28,5 +32,4 @@ app.add_middleware(
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """Endpoint base per verificare lo stato del server."""
     return {"status": "ok", "app": settings.PROJECT_NAME, "version": settings.VERSION}

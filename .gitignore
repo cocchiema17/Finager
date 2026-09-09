@@ -1,3 +1,34 @@
+# Bytecode e cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Variabili d'ambiente e segreti (FONDAMENTALE)
 .env
+.env.local
+.env.*.local
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Pytest e coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE e editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / Vue (per quando lavorerai al client o per i residui del vecchio progetto)
 node_modules/
-.DS_Store
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
