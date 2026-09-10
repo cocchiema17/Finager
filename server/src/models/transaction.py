@@ -1,6 +1,6 @@
 import enum
 import uuid
-from sqlalchemy import Column, String, Float, Date, BigInteger, ForeignKeyConstraint, text
+from sqlalchemy import Column, String, Float, Date, BigInteger, ForeignKey, ForeignKeyConstraint, text
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import relationship
 from src.core.database import Base
@@ -28,7 +28,7 @@ class Transaction(Base):
     )
     value = Column(Float, nullable=False)
     categoryName = Column(String(40), nullable=True)
-    spaceId = Column(BigInteger, nullable=False)
+    spaceId = Column(BigInteger, ForeignKey("space.id", ondelete="CASCADE"), nullable=False)
     transactionDate = Column(Date, server_default=text("CURRENT_DATE"), nullable=False)
 
     __table_args__ = (
