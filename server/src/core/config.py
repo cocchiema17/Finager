@@ -22,6 +22,11 @@ class Settings:
     def DATABASE_URL(self) -> str:
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    # JWT & Auth Security
+    JWT_KEY: str = os.getenv("JWT_KEY", "your-secret-key")
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 7))  # 7 giorni
+
     # Configurazione CORS (stesso host del frontend Vue della vecchia repo)
     CORS_ORIGINS: list[str] = [
         "http://localhost:8080",

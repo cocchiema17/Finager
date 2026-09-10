@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.core.database import Base, engine
 import src.models  # Assicura che i modelli vengano registrati nei metadati di Base
+from src.controllers.auth_controller import router as auth_router
 
 
 @asynccontextmanager
@@ -28,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Registrazione route di autenticazione
+app.include_router(auth_router)
 
 
 @app.get("/health", tags=["Health"])
