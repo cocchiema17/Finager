@@ -42,4 +42,4 @@ class Transaction(Base):
 
     # Relazioni
     space = relationship("Space", back_populates="transactions")
-    category = relationship("Category", back_populates="transactions")
+    category = relationship("Category", back_populates="transactions", overlaps="space,transactions")

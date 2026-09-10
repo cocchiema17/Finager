@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
 # Schema per la registrazione di un nuovo utente
@@ -25,5 +25,4 @@ class UserResponse(BaseModel):
     email: EmailStr
     createdAt: datetime
 
-    class Config:
-        from_attributes = True  # Permette a Pydantic di leggere oggetti ORM di SQLAlchemy
+    model_config = ConfigDict(from_attributes=True)
