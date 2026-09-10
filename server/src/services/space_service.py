@@ -26,11 +26,11 @@ class SpaceService:
 
         try:
             return SpaceRepository.create(db, user_id, clean_name)
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Space with name {clean_name} already in use",
+                detail=f"Database integrity error: {str(e.orig)}",
             )
 
     @staticmethod
@@ -64,7 +64,7 @@ class SpaceService:
             db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Space with name {clean_name} already in use",
+                detail=f"Database integrity error: {str(e.orig)}",
             )
 
     @staticmethod
