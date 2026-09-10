@@ -5,6 +5,7 @@ from src.core.config import settings
 from src.core.database import Base, engine
 import src.models  # Assicura che i modelli vengano registrati nei metadati di Base
 from src.controllers.auth_controller import router as auth_router
+from src.controllers.space_controller import router as space_router
 
 
 @asynccontextmanager
@@ -30,9 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrazione route di autenticazione
+# Registrazione delle rotte dei controller
 app.include_router(auth_router)
-
+app.include_router(space_router)
 
 @app.get("/health", tags=["Health"])
 def health_check():

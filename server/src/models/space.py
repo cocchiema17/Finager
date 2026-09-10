@@ -1,5 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, UniqueConstraint, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey, UniqueConstraint, text, Uuid
 from sqlalchemy.orm import relationship
 from src.core.database import Base
 
@@ -9,7 +8,7 @@ class Space(Base):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(40), nullable=False)
-    userId = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    userId = Column(Uuid(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     createdAt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"), nullable=False)
 
     __table_args__ = (
