@@ -10,6 +10,8 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+# /signup vecchio endpoint, mantenuto per compatibilità
+@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: UserRegister, response: Response, db: Session = Depends(get_db)):
     user, token = AuthService.register(db, payload)
     response.set_cookie(
@@ -23,6 +25,8 @@ def register(payload: UserRegister, response: Response, db: Session = Depends(ge
 
 
 @router.post("/login", response_model=UserResponse)
+# /signin vecchio endpoint, mantenuto per compatibilità
+@router.post("/signin", response_model=UserResponse)
 def login(payload: UserLogin, response: Response, db: Session = Depends(get_db)):
     user, token = AuthService.login(db, payload)
     response.set_cookie(
@@ -36,6 +40,8 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
 
 
 @router.get("/current-user", response_model=UserResponse)
+# /currentUser vecchio endpoint, mantenuto per compatibilità
+@router.get("/currentUser", response_model=UserResponse)
 def current_user(user: User = Depends(get_current_user)):
     return user
 

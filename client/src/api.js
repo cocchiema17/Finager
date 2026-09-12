@@ -1,5 +1,8 @@
 import axios from "axios";
 
+// Assicura l'invio automatico dei cookie HTTP-only di sessione
+axios.defaults.withCredentials = true;
+
 axios.interceptors.request.use(
   (config) => {
     const csrfToken = localStorage.getItem("csrfToken");
