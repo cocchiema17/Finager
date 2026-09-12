@@ -8,6 +8,8 @@ from src.controllers.auth_controller import router as auth_router
 from src.controllers.space_controller import router as space_router
 from src.controllers.category_controller import router as category_router
 from src.controllers.transaction_controller import router as transaction_router
+from src.controllers.charts_controller import router as charts_router
+from src.controllers.report_controller import router as report_router
 
 
 @asynccontextmanager
@@ -38,6 +40,8 @@ app.include_router(auth_router)
 app.include_router(space_router)
 app.include_router(category_router)
 app.include_router(transaction_router)
+app.include_router(charts_router)
+app.include_router(report_router)
 
 @app.get("/health", tags=["Health"])
 def health_check():

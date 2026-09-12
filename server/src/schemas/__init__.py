@@ -7,6 +7,12 @@ from src.schemas.transaction_schema import (
     TransactionItemResponse,
     TransactionListResponse,
 )
+from src.schemas.analytics_schema import (
+    BarChartItem,
+    LineChartItem,
+    PieChartItem,
+    ChartsResponse,
+)
 
 __all__ = [
     "UserRegister",
@@ -23,4 +29,8 @@ __all__ = [
     "TransactionUpdate",
     "TransactionItemResponse",
     "TransactionListResponse",
+    "BarChartItem",
+    "LineChartItem",
+    "PieChartItem",
+    "ChartsResponse",
 ]
