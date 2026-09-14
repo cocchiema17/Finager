@@ -13,6 +13,13 @@ from src.schemas.analytics_schema import (
     PieChartItem,
     ChartsResponse,
 )
+from src.schemas.chat_schema import (
+    ChatMessage,
+    ChatSessionCreate,
+    ChatSessionResponse,
+    ChatSessionSummary,
+    ChatPromptRequest,
+)
 
 __all__ = [
     "UserRegister",
@@ -33,4 +40,9 @@ __all__ = [
     "LineChartItem",
     "PieChartItem",
     "ChartsResponse",
+    "ChatMessage",
+    "ChatSessionCreate",
+    "ChatSessionResponse",
+    "ChatSessionSummary",
+    "ChatPromptRequest",
 ]

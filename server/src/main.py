@@ -3,7 +3,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.core.database import Base, engine
+from src.core.mongo import connect_to_mongo, close_mongo_connection, mongo_manager
 import src.models  # Assicura che i modelli vengano registrati nei metadati di Base
+
+# Import dei router dei controller
 from src.controllers.auth_controller import router as auth_router
 from src.controllers.space_controller import router as space_router
 from src.controllers.category_controller import router as category_router
@@ -16,7 +19,9 @@ from src.controllers.report_controller import router as report_router
 async def lifespan(app: FastAPI):
     # Inizializza le tabelle all'avvio dell'applicazione se non presenti
     Base.metadata.create_all(bind=engine)
+    await connect_to_mongo()
     yield
+    await close_mongo_connection()
 
 
 app = FastAPI(
@@ -44,5 +49,14 @@ app.include_router(charts_router)
 app.include_router(report_router)
 
 @app.get("/health", tags=["Health"])
-def health_check():
-    return {"status": "ok", "app": settings.PROJECT_NAME, "version": settings.VERSION}
+async def health_check():
+    mongo_status = "connected" if mongo_manager.client is not None else "disconnected"
+    return {
+        "status": "ok",
+        "app": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "databases": {
+            "postgres": "connected",
+            "mongodb": mongo_status,
+        },
+    }

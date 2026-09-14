@@ -22,6 +22,14 @@ class Settings:
     def DATABASE_URL(self) -> str:
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    # Parametri Database MongoDB (Motor / NoSQL)
+    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "finager_chat_db")
+
+    # Parametri Ollama
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+
     # JWT & Auth Security
     JWT_KEY: str = os.getenv("JWT_KEY", "your-secret-key")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
