@@ -1,3 +1,5 @@
+import asyncio
+import os
 from contextlib import asynccontextmanager
 import logging
 from fastapi import FastAPI
@@ -5,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.core.database import Base, engine
 from src.core.mongo import connect_to_mongo, close_mongo_connection, mongo_manager
+from src.services.ollama_service import OllamaService
 import src.models  # Assicura che i modelli vengano registrati nei metadati di Base
 
 # Import dei router dei controller
@@ -24,7 +27,22 @@ async def lifespan(app: FastAPI):
     # Inizializza le tabelle all'avvio dell'applicazione se non presenti
     Base.metadata.create_all(bind=engine)
     await connect_to_mongo()
+
+    # Avvia il pre-caricamento del modello LLM in background (salta durante i test pytest)
+    warmup_task = None
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        # Avvia il warm-up del modello Ollama in background
+        warmup_task = asyncio.create_task(OllamaService.warmup_model())
+        logging.info("Warm-up del modello Ollama avviato in background.")
+
     yield
+
+    if warmup_task and not warmup_task.done():
+        warmup_task.cancel()
+        try:
+            await warmup_task
+        except asyncio.CancelledError:
+            logging.info("Warm-up del modello Ollama annullato durante la chiusura dell'applicazione.")
     await close_mongo_connection()
 
 

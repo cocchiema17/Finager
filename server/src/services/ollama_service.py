@@ -22,6 +22,31 @@ class OllamaService:
         )
 
     @classmethod
+    async def warmup_model(cls) -> None:
+        """
+        Pre-carica i pesi del modello in RAM all'avvio di FastAPI per evitare
+        il cold start alla prima richiesta dell'utente.
+        """
+        url = f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/chat"
+        payload = {
+            "model": settings.OLLAMA_MODEL,
+            "messages": [],
+            "keep_alive": -1,  # Mantiene il modello sempre carico in memoria finché il server è attivo
+        }
+        logger.info(f"Pre-caricamento modello Ollama '{settings.OLLAMA_MODEL}' in corso...")
+        
+        timeout_config = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
+        async with httpx.AsyncClient(timeout=timeout_config) as client:
+            try:
+                response = await client.post(url, json=payload)
+                if response.status_code == 200:
+                    logger.info(f"Modello '{settings.OLLAMA_MODEL}' caricato in RAM e pronto.")
+                else:
+                    logger.warning(f"Warm-up Ollama non riuscito ({response.status_code}): {response.text}")
+            except Exception as e:
+                logger.warning(f"Impossibile eseguire il warm-up di Ollama (container spento o non pronto): {e}")
+
+    @classmethod
     async def stream_chat_completion(
         cls,
         history: list[ChatMessage],
@@ -43,6 +68,7 @@ class OllamaService:
             "model": settings.OLLAMA_MODEL,
             "messages": formatted_messages,
             "stream": True,
+            "keep_alive": -1, # Mantiene il modello sempre carico in memoria finché il server è attivo
             "options": {
                 "temperature": 0.7,
             },
