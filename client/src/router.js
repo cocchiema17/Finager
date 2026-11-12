@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import Intro from "./views/Intro";
 import Home from "./views/Home";
+import Chat from "./views/Chat";
 import Login from "./views/Login";
 import Register from "./views/Register";
 import NotFound from "./views/NotFound";
@@ -23,6 +24,14 @@ const routes = [
     meta: {
       requiresAuth: true
     },
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: Chat,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/login",
