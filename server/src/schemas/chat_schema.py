@@ -22,6 +22,9 @@ class ChatSessionResponse(BaseModel):
     updatedAt: datetime
     messages: list[ChatMessage] = []
 
+    # È una direttiva di configurazione di Pydantic v2. 
+    # Permette a Pydantic di leggere i dati sia se gli passi un dizionario classico di Python ({"id": "...", "title": "..."}) 
+    # sia se gli passi un oggetto con attributi (oggetto.id, oggetto.title), rendendo la serializzazione compatibile e flessibile. 
     model_config = ConfigDict(from_attributes=True)
 
 

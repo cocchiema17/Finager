@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
@@ -13,7 +14,10 @@ from src.controllers.category_controller import router as category_router
 from src.controllers.transaction_controller import router as transaction_router
 from src.controllers.charts_controller import router as charts_router
 from src.controllers.report_controller import router as report_router
+from src.controllers.chat_controller import router as chat_router
 
+# Configurazione del logging
+logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -47,6 +51,7 @@ app.include_router(category_router)
 app.include_router(transaction_router)
 app.include_router(charts_router)
 app.include_router(report_router)
+app.include_router(chat_router)
 
 @app.get("/health", tags=["Health"])
 async def health_check():

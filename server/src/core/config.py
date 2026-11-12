@@ -28,7 +28,7 @@ class Settings:
 
     # Parametri Ollama
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 
     # JWT & Auth Security
     JWT_KEY: str = os.getenv("JWT_KEY", "your-secret-key")
