@@ -35,8 +35,6 @@
 
         <hr />
 
-        <element ref="ele-1"></element>
-
         <div>
           <div
             class="text-image-conteiner content hidden inverted"
@@ -61,8 +59,6 @@
 
         <hr />
 
-        <element ref="ele-2"></element>
-
         <div>
           <div class="text-image-conteiner content hidden" ref="content-2">
             <div
@@ -85,8 +81,6 @@
         </div>
 
         <hr />
-
-        <element ref="ele-3"></element>
 
         <div>
           <div
@@ -113,8 +107,6 @@
 
         <hr />
 
-        <element ref="ele-4"></element>
-
         <div>
           <div class="text-image-conteiner content hidden" ref="content-4">
             <div
@@ -134,8 +126,6 @@
           </div>
         </div>
 
-        <hr />
-
       </div>
     </div>
 
@@ -150,6 +140,11 @@ import Footer from "../components/Footer";
 export default {
   name: "IntroPage",
   components: { Footer },
+  data() {
+    return {
+      observer: null,
+    };
+  },
   computed: {
     ...mapGetters(["user"]),
   },
@@ -161,25 +156,31 @@ export default {
       this.$refs["content-4"],
     ];
 
-    const eles = [
-      this.$refs["ele-1"],
-      this.$refs["ele-2"],
-      this.$refs["ele-3"],
-      this.$refs["ele-4"],
-    ];
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            entry.target.classList.remove("hidden");
+            this.observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15, // Basta che il 15% del blocco entri nello schermo (anche su tablet)
+      }
+    );
 
-    window.addEventListener("scroll", function () {
-      for (let i = 0; i < contents.length; i++) {
-        const rect = eles[i].getBoundingClientRect();
-        const elePosition =
-          rect.top + window.scrollY - window.innerHeight / 1.5;
-
-        if (window.pageYOffset > elePosition) {
-          contents[i].classList.add("visible");
-          contents[i].classList.remove("hidden");
-        }
+    contents.forEach((el) => {
+      if (el) {
+        this.observer.observe(el);
       }
     });
+  },
+  beforeUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   },
 };
 </script>
