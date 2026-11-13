@@ -9,7 +9,7 @@
         Finager &egrave; una applicazione che ti permette di gestire e visualizzare le
         tue finanze.
         <br />
-        Fai click su Sign in o Sign up in alto a destra per accedere alla tua
+        Fai click su Accedi o Registrati in alto a destra per accedere alla tua
         area personale!
       </p>
 
@@ -25,12 +25,10 @@
             ></div>
 
             <div class="text-element">
-              <strong>Space</strong>
+              <strong>Conti</strong>
               <br />
               <br />
-              Lo Space &egrave; il conto dove inserire le tue transazioni. Crea i tuoi
-              Space personali per suddividere entrate e uscite in base alle tue
-              esigenze!
+              Crea uno o pi&ugrave; conti per gestire al meglio le tue finanze
             </div>
           </div>
         </div>
@@ -79,7 +77,7 @@
               <br />
               <br />
               Una transazione rappresenta una entrata o un uscita all’interno di
-              uno Space. Nella tua home avrai accesso ad una tabella dove
+              uno conto. Nella tua home avrai accesso ad una tabella dove
               poterle visualizzare, ordinare, filtrare, modificare, cancellare
               ed esportare in formato excel!
             </div>
@@ -99,7 +97,7 @@
               <strong>Grafici</strong>
               <br />
               <br />
-              Ottieni una maggiore consapevolezza del tuo Space attraverso tre
+              Ottieni una maggiore consapevolezza del tuo conto attraverso tre
               splenditi grafici: renditi conto a quanto ammontano le tue
               entrate e spese mensili, del valore del tuo conto e della
               suddivisione per categorie!
@@ -112,6 +110,32 @@
             ></div>
           </div>
         </div>
+
+        <hr />
+
+        <element ref="ele-4"></element>
+
+        <div>
+          <div class="text-image-conteiner content hidden" ref="content-4">
+            <div
+              class="div-image"
+              :style="{
+                backgroundImage:
+                  'url(' + require('@/assets/chat.png') + ')',
+              }"
+            ></div>
+            <div class="text-element">
+              <strong>Chatbot</strong>
+              <br />
+              <br />
+              Finager IA &egrave; un assistente virtuale che ti aiuta a gestire le tue finanze.
+              Puoi chiedere a Finager IA consigli su come gestire le tue finanze in base alle tue entrate e spese.
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
       </div>
     </div>
 
@@ -134,12 +158,14 @@ export default {
       this.$refs["content-1"],
       this.$refs["content-2"],
       this.$refs["content-3"],
+      this.$refs["content-4"],
     ];
 
     const eles = [
       this.$refs["ele-1"],
       this.$refs["ele-2"],
       this.$refs["ele-3"],
+      this.$refs["ele-4"],
     ];
 
     window.addEventListener("scroll", function () {
