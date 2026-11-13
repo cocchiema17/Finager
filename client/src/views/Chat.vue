@@ -1,18 +1,35 @@
 <template>
   <div class="chat-page bg-app">
-    <div class="container-fluid h-100 py-3">
-      <div class="row h-100 g-3">
-        <!-- SIDEBAR SESSIONI -->
-        <div class="col-12 col-md-4 col-lg-3 d-flex flex-column h-100">
-          <div class="card shadow-sm border-0 flex-grow-1 d-flex flex-column overflow-hidden">
-            <div class="card-header bg-white border-bottom py-3">
+    <div class="container-fluid h-100 p-0 p-md-3">
+      <div class="row h-100 g-0 g-md-3 position-relative">
+        <!-- BACKDROP MOBILE QUANDO IL DRAWER È APERTO -->
+        <div
+          v-if="showMobileSidebar"
+          @click="showMobileSidebar = false"
+          class="mobile-backdrop d-md-none"
+        ></div>
+
+        <!-- SIDEBAR SESSIONI (Fissa su Desktop, Drawer scorrevole su Mobile) -->
+        <div
+          class="col-md-4 col-lg-3 h-100 sidebar-wrapper"
+          :class="{ 'sidebar-open': showMobileSidebar }"
+        >
+          <div class="card shadow-sm border-0 h-100 d-flex flex-column rounded-0 rounded-md-3 overflow-hidden">
+            <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between gap-2">
               <button
                 @click="handleNewSession"
-                class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-2"
                 :disabled="isStreaming"
               >
                 <i class="bi bi-plus-lg"></i>
-                <span>Nuova Conversazione</span>
+                <span>Nuova Chat</span>
+              </button>
+              <button
+                @click="showMobileSidebar = false"
+                class="btn btn-outline-secondary d-md-none"
+                aria-label="Chiudi elenco chat"
+              >
+                <i class="bi bi-x-lg"></i>
               </button>
             </div>
 
@@ -59,47 +76,69 @@
 
         <!-- AREA MESSAGGI PRINCIPALE -->
         <div class="col-12 col-md-8 col-lg-9 d-flex flex-column h-100">
-          <div class="card shadow-sm border-0 flex-grow-1 d-flex flex-column overflow-hidden">
+          <div class="card shadow-sm border-0 flex-grow-1 d-flex flex-column rounded-0 rounded-md-3 overflow-hidden">
             <!-- Header Chat -->
-            <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary-subtle text-primary p-2 rounded-circle">
+            <div class="card-header bg-white border-bottom py-2 py-md-3 px-3 d-flex align-items-center justify-content-between gap-2">
+              <div class="d-flex align-items-center gap-2 text-truncate">
+                <!-- Pulsante apertura storico su Mobile -->
+                <button
+                  @click="showMobileSidebar = true"
+                  class="btn btn-outline-secondary btn-sm d-md-none flex-shrink-0"
+                  title="Storico conversazioni"
+                >
+                  <i class="bi bi-list fs-5"></i>
+                </button>
+
+                <span class="badge bg-primary-subtle text-primary p-2 rounded-circle flex-shrink-0">
                   <i class="bi bi-robot fs-5"></i>
                 </span>
-                <div>
-                  <h6 class="mb-0 fw-semibold">
+                <div class="text-truncate">
+                  <h6 class="mb-0 fw-semibold text-truncate">
                     {{ currentSession ? currentSession.title : "Finager AI Assistant" }}
                   </h6>
-                  <small class="text-muted">Assistente personale per la gestione finanziaria</small>
+                  <small class="text-muted d-none d-sm-block">
+                    Assistente personale per la gestione finanziaria
+                  </small>
                 </div>
               </div>
-              <span v-if="isStreaming" class="badge bg-info-subtle text-info">
-                <span class="spinner-grow spinner-grow-sm me-1" role="status"></span>
-                Sta scrivendo...
-              </span>
+
+              <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <span v-if="isStreaming" class="badge bg-info-subtle text-info">
+                  <span class="spinner-grow spinner-grow-sm me-1" role="status"></span>
+                  <span class="d-none d-sm-inline">Sta scrivendo...</span>
+                </span>
+                <button
+                  @click="handleNewSession"
+                  class="btn btn-outline-primary btn-sm d-md-none"
+                  title="Nuova chat"
+                  :disabled="isStreaming"
+                >
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Contenitore Messaggi -->
-            <div ref="messagesContainer" class="card-body overflow-auto p-4 messages-area">
+            <div ref="messagesContainer" class="card-body overflow-auto p-3 p-md-4 messages-area">
               <!-- Empty State / Benvenuto -->
               <div
                 v-if="!currentSession || currentSession.messages.length === 0"
-                class="h-100 d-flex flex-column align-items-center justify-content-center text-center px-3"
+                class="h-100 d-flex flex-column align-items-center justify-content-center text-center px-2 px-md-3"
               >
                 <div class="bg-primary-subtle text-primary rounded-circle p-3 mb-3">
                   <i class="bi bi-stars fs-1"></i>
                 </div>
                 <h5 class="fw-semibold">Ciao{{ user ? `, ${user.firstName}` : "" }}! Come posso aiutarti oggi?</h5>
-                <p class="text-muted max-w-500 mb-4">
+                <p class="text-muted max-w-500 small mb-4">
                   Chiedimi consigli su come ottimizzare il budget mensile, ridurre le spese ricorrenti o pianificare i tuoi risparmi.
                 </p>
 
-                <div class="d-flex flex-wrap justify-content-center gap-2">
+                <div class="d-flex flex-column flex-sm-row flex-wrap justify-content-center gap-2 w-100 max-w-600">
                   <button
                     v-for="(suggestion, idx) in quickPrompts"
                     :key="idx"
                     @click="useSuggestion(suggestion)"
-                    class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                    class="btn btn-outline-primary btn-sm rounded-pill px-3 text-wrap"
                   >
                     {{ suggestion }}
                   </button>
@@ -127,26 +166,31 @@
                         {{ msg.role === "user" ? "Tu" : "Finager AI" }}
                       </small>
                     </div>
-                    <div class="message-text">{{ msg.content }}<span v-if="isStreaming && index === currentSession.messages.length - 1 && msg.role === 'assistant'" class="typing-cursor">|</span></div>
+                    <div class="message-text">
+                      {{ msg.content }}<span
+                        v-if="isStreaming && index === currentSession.messages.length - 1 && msg.role === 'assistant'"
+                        class="typing-cursor"
+                      >|</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Form Input Messaggio -->
-            <div class="card-footer bg-white border-top p-3">
+            <div class="card-footer bg-white border-top p-2 p-md-3">
               <form @submit.prevent="sendMessage" class="d-flex gap-2 align-items-end">
                 <textarea
                   v-model="promptInput"
                   @keydown.enter.exact.prevent="sendMessage"
                   class="form-control resize-none"
                   rows="1"
-                  placeholder="Scrivi una domanda sull'andamento delle tue spese... (Invio per inviare)"
+                  placeholder="Scrivi una domanda... (Invio per inviare)"
                   :disabled="isStreaming"
                 ></textarea>
                 <button
                   type="submit"
-                  class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2"
+                  class="btn btn-primary px-3 px-md-4 py-2 d-flex align-items-center gap-2 flex-shrink-0"
                   :disabled="!promptInput.trim() || isStreaming"
                 >
                   <i class="bi bi-send-fill"></i>
@@ -181,6 +225,7 @@ export default {
       promptInput: "",
       loadingSessions: false,
       isStreaming: false,
+      showMobileSidebar: false,
       quickPrompts: [
         "Come posso applicare la regola del 50/30/20 al mio stipendio?",
         "Dammi 5 consigli pratici per ridurre le spese fisse mensili",
@@ -213,6 +258,7 @@ export default {
       try {
         const created = await createChatSession("Nuova conversazione");
         this.currentSession = created;
+        this.showMobileSidebar = false;
         await this.fetchSessions();
       } catch (err) {
         this.newToast("Impossibile creare una nuova chat", TYPE.ERROR);
@@ -223,6 +269,7 @@ export default {
       if (this.isStreaming) return;
       try {
         this.currentSession = await getChatSession(sessionId);
+        this.showMobileSidebar = false;
         this.scrollToBottom();
       } catch (err) {
         this.newToast("Errore nel recupero della sessione", TYPE.ERROR);
@@ -253,7 +300,6 @@ export default {
 
       this.promptInput = "";
 
-      // Se non c'è una sessione selezionata, creala automaticamente al primo invio
       if (!this.currentSession) {
         try {
           this.currentSession = await createChatSession(text.slice(0, 40));
@@ -268,7 +314,6 @@ export default {
         }
       }
 
-      // Aggiunge subito il messaggio utente e il placeholder per l'assistente
       this.currentSession.messages.push({
         role: "user",
         content: text,
@@ -292,7 +337,6 @@ export default {
         onDone: async () => {
           this.isStreaming = false;
           this.scrollToBottom();
-          // Aggiorna la sidebar (titolo automatico e timestamp)
           const updatedList = await getChatSessions();
           this.sessions = updatedList;
         },
@@ -333,6 +377,7 @@ export default {
 <style scoped>
 .chat-page {
   height: calc(100vh - 57px);
+  height: calc(100dvh - 57px);
   overflow: hidden;
 }
 
@@ -358,9 +403,53 @@ export default {
   max-width: 500px;
 }
 
+.max-w-600 {
+  max-width: 600px;
+}
+
+/* Adattamento fumetti messaggi su Mobile e Desktop */
 .message-bubble {
-  max-width: 78%;
+  max-width: 88%;
   word-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .message-bubble {
+    max-width: 76%;
+  }
+
+  .rounded-md-3 {
+    border-radius: 0.5rem !important;
+  }
+}
+
+/* Comportamento Drawer della Sidebar su schermi < 768px */
+@media (max-width: 767.98px) {
+  .sidebar-wrapper {
+    position: fixed;
+    top: 57px;
+    left: 0;
+    bottom: 0;
+    width: 285px;
+    max-width: 82vw;
+    z-index: 1045;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-in-out;
+  }
+
+  .sidebar-wrapper.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .mobile-backdrop {
+    position: fixed;
+    top: 57px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 1040;
+  }
 }
 
 .message-text {

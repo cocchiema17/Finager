@@ -75,8 +75,9 @@ class OllamaService:
         }
 
         url = f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/chat"
+        timeout_config = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=timeout_config) as client:
             try:
                 async with client.stream("POST", url, json=payload) as response:
                     if response.status_code != 200:
