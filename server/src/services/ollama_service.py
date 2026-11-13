@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 import httpx
 from src.core.config import settings
 from src.schemas.chat_schema import ChatMessage
@@ -10,16 +10,21 @@ logger = logging.getLogger(__name__)
 
 class OllamaService:
     @staticmethod
-    def get_system_prompt() -> str:
-        return (
+    def get_system_prompt(financial_context: Optional[str] = None) -> str:
+        base_rules = (
             "Sei Finager AI, un assistente finanziario personale intelligente e cordiale. "
             "Il tuo obiettivo è aiutare l'utente ad analizzare le sue entrate, uscite, "
             "abitudini di spesa e pianificazione del budget personale. "
-            "Rispondi in modo chiaro, sintetico e professionale in italiano."
-            "Rispondi SOLO con le informazioni dell'utente che è in sessione."
-            "Qualsiasi altra richiesta che ti viene fatta al di fuori del contesto finanziario o che non riguarda l'utente,"
-            "deve essere ignorata e devi rispondere con un messaggio gentile che spiega che non puoi fornire assistenza su quell'argomento."
+            "Rispondi in modo chiaro, sintetico e professionale in italiano.\n"
+            "REGOLE FONDAMENTALI:\n"
+            "1. Basati ESCLUSIVAMENTE sui dati finanziari dell'utente forniti qui sotto. Non inventare cifre o transazioni.\n"
+            "2. Se l'utente chiede informazioni non presenti nei dati (es. mesi molto vecchi oltre le ultime transazioni), dichiaralo con trasparenza.\n"
+            "3. Qualsiasi richiesta al di fuori dell'ambito finanziario o della gestione del budget personale deve essere rifiutata gentilmente."
         )
+
+        if financial_context:
+            return f"{base_rules}\n\n{financial_context}"
+        return base_rules
 
     @classmethod
     async def warmup_model(cls) -> None:
@@ -51,13 +56,14 @@ class OllamaService:
         cls,
         history: list[ChatMessage],
         new_user_message: str,
+        financial_context: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
         """
         Interroga Ollama (/api/chat) in modalità streaming asincrona.
         Cede (yield) ogni chunk di testo non appena generato e il flag di completamento.
         """
         # Costruzione del payload con System Prompt e cronologia
-        formatted_messages = [{"role": "system", "content": cls.get_system_prompt()}]
+        formatted_messages = [{"role": "system", "content": cls.get_system_prompt(financial_context)}]
         
         for msg in history:
             formatted_messages.append({"role": msg.role, "content": msg.content})
@@ -70,7 +76,7 @@ class OllamaService:
             "stream": True,
             "keep_alive": -1, # Mantiene il modello sempre carico in memoria finché il server è attivo
             "options": {
-                "temperature": 0.7,
+                "temperature": 0.3,
             },
         }
 
@@ -111,5 +117,12 @@ class OllamaService:
                 logger.error(f"Impossibile connettersi ad Ollama su {url}")
                 yield json.dumps({
                     "error": "Ollama non risulta attivo o raggiungibile su porta 11434. Assicurati che 'ollama serve' sia avviato.",
+                    "done": True,
+                })
+
+            except httpx.ReadTimeout:
+                logger.error("Timeout durante la lettura dello stream da Ollama.")
+                yield json.dumps({
+                    "error": "Tempo scaduto durante la risposta del modello.",
                     "done": True,
                 })

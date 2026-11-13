@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Response, status
 from fastapi.responses import StreamingResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from sqlalchemy.orm import Session
+from src.core.database import get_db
 from src.core.mongo import get_mongo_db
 from src.controllers.deps import get_current_user
 from src.models.user import User
@@ -61,12 +63,14 @@ async def stream_message(
     payload: ChatPromptRequest,
     user: User = Depends(get_current_user),
     mongo_db: AsyncIOMotorDatabase = Depends(get_mongo_db),
+    sql_db: Session = Depends(get_db),
 ):
     """
     Endpoint SSE (Server-Sent Events) per inviare un prompt e ricevere la risposta in tempo reale da Ollama.
     """
     generator = ChatService.stream_chat_response(
-        db=mongo_db,
+        mongo_db=mongo_db,
+        sql_db=sql_db,
         session_id=session_id,
         user_id=user.id,
         prompt=payload.message,
