@@ -13,8 +13,10 @@ def test_register_user_success(client):
     assert "id" in data
     # Verifica che la password non venga esposta nel JSON di risposta
     assert "password" not in data
-    # Verifica che venga impostato il cookie di sessione
-    assert "session" in response.cookies
+    # Verifica che venga impostato il token di sessione
+    assert "token" in data
+    # Verifica che il token sia una stringa non vuota
+    assert isinstance(data["token"], str) and len(data["token"]) > 20
 
 
 def test_register_duplicate_email(client):
@@ -53,7 +55,8 @@ def test_login_success(client):
     response = client.post("/api/auth/signin", json=login_payload)
     assert response.status_code == 200
     assert response.json()["email"] == "luigi.verdi@example.com"
-    assert "session" in response.cookies
+    assert "token" in response.json()
+    assert isinstance(response.json()["token"], str) and len(response.json()["token"]) > 20
 
 
 def test_login_invalid_password(client):

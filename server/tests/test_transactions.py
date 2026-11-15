@@ -9,7 +9,7 @@ def test_create_transaction_and_auto_category(client):
             "password": "password123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     space_res = client.post("/api/spaces", json={"name": "Casa"}, headers=headers)

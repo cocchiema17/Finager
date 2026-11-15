@@ -13,7 +13,7 @@ def test_charts_and_report(client):
             "password": "password123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     # 2. Crea space

@@ -8,15 +8,9 @@ from src.models.user import User
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
-@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(payload: UserRegister, response: Response, db: Session = Depends(get_db)):
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
+def register(payload: UserRegister, db: Session = Depends(get_db)):
     user, token = AuthService.register(db, payload)
-    response.set_cookie(
-        key="session",
-        value=token,
-        httponly=True,
-        samesite="lax",
-    )
     user_data = UserResponse.model_validate(user).model_dump(mode="json")
     return {
         **user_data,
@@ -25,15 +19,9 @@ def register(payload: UserRegister, response: Response, db: Session = Depends(ge
     }
 
 
-@router.post("/signin", response_model=UserResponse)
-def login(payload: UserLogin, response: Response, db: Session = Depends(get_db)):
+@router.post("/signin", status_code=status.HTTP_200_OK)
+def login(payload: UserLogin, db: Session = Depends(get_db)):
     user, token = AuthService.login(db, payload)
-    response.set_cookie(
-            key="session",
-            value=token,
-            httponly=True,
-            samesite="lax",
-    )
     user_data = UserResponse.model_validate(user).model_dump(mode="json")
     return {
         **user_data,

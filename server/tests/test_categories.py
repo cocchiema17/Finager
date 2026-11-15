@@ -9,7 +9,7 @@ def test_create_and_get_categories(client):
             "password": "securepassword123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     # Crea Space
@@ -56,7 +56,7 @@ def test_create_category_duplicate_in_same_space(client):
             "password": "securepassword123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     space_res = client.post("/api/spaces", json={"name": "Azienda"}, headers=headers)
@@ -83,7 +83,7 @@ def test_create_category_foreign_space_forbidden(client):
             "password": "password123",
         },
     )
-    token1 = reg1.cookies.get("session")
+    token1 = reg1.json()["token"]
     s_res = client.post("/api/spaces", json={"name": "Space U1"}, headers={"Authorization": f"Bearer {token1}"})
     u1_space_id = s_res.json()["id"]
 
@@ -97,7 +97,7 @@ def test_create_category_foreign_space_forbidden(client):
             "password": "password123",
         },
     )
-    token2 = reg2.cookies.get("session")
+    token2 = reg2.json()["token"]
     headers2 = {"Authorization": f"Bearer {token2}"}
 
     res = client.post(

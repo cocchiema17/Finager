@@ -6,7 +6,7 @@ def test_create_and_get_spaces(client):
         "password": "securepassword123",
     }
     reg_res = client.post("/api/auth/signup", json=reg_payload)
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     # 1. Creazione Space
@@ -34,7 +34,7 @@ def test_update_and_delete_space(client):
             "password": "securepassword123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     # Crea Space
@@ -66,7 +66,7 @@ def test_create_duplicate_space_name(client):
             "password": "securepassword123",
         },
     )
-    token = reg_res.cookies.get("session")
+    token = reg_res.json()["token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     res1 = client.post("/api/spaces", json={"name": "Lavoro"}, headers=headers)
