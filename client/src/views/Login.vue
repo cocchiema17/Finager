@@ -1,7 +1,7 @@
 <template>
   <div class="centered-form-wrapper container-fluid bg-app">
     <form class="centered-form" @submit.prevent="onSubmit" novalidate>
-      <h1 class="display-6 mb-5 text-center">Login to Finager!</h1>
+      <h1 class="display-6 mb-5 text-center">Accedi a Finager!</h1>
 
       <div class="form-floating mb-3">
         <input
@@ -14,7 +14,7 @@
         <div v-if="this.errors.email" class="invalid-feedback d-block">
           {{ errors.email }}
         </div>
-        <label for="email">Email address</label>
+        <label for="email">Indirizzo email</label>
       </div>
       <div class="form-floating mb-3">
         <input
@@ -42,13 +42,13 @@
             },
           ]"
         >
-          Sign in
+          Accedi
         </button>
 
-        <div class="hr-sect mt-3">or</div>
+        <div class="hr-sect mt-3">o</div>
 
         <router-link class="btn btn-outline-primary mt-3" to="register">
-          Sign up
+          Registrati
         </router-link>
       </div>
     </form>
@@ -110,16 +110,15 @@ export default {
       try {
         const data = await login(this.email, this.password);
 
-        localStorage.setItem("csrfToken", data.csrfToken);
-        this.$store.dispatch("user", data.user);
+        this.$store.dispatch("user", data.user || data);
         this.$store.dispatch("isLogged", true);
         this.$router.push("/home");
       } catch (err) {
         if (err instanceof AxiosError) {
-          if (err.response.status == 400) {
-            this.newToast("Bad credentials", TYPE.ERROR);
+          if (err.response.status == 400 || err.response.status == 401) {
+            this.newToast("Credenziali non valide", TYPE.ERROR);
           } else {
-            this.newToast("Something went wrong", TYPE.ERROR);
+            this.newToast("Qualcosa è andato storto", TYPE.ERROR);
           }
           this.loginFailed = true;
           setTimeout(() => {

@@ -1,12 +1,22 @@
 import axios from "axios";
 
-axios.defaults.withCredentials = true;
+// Helper per recuperare il token isolato della singola scheda
+const getAuthToken = () => sessionStorage.getItem("authToken");
+const setAuthToken = (token) => {
+  if (token) {
+    sessionStorage.setItem("authToken", token);
+  }
+};
+const clearAuthToken = () => {
+  sessionStorage.removeItem("authToken");
+};
 
+// Interceptor Axios: allega il Bearer token della specifica scheda a ogni richiesta
 axios.interceptors.request.use(
   (config) => {
-    const csrfToken = localStorage.getItem("csrfToken");
-    if (csrfToken) {
-      config.headers["x-csrf-token"] = csrfToken;
+    const token = getAuthToken();
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -24,16 +34,35 @@ const getChartsData = (spaceId, fromDate, toDate) => {
   return axios.get("/api/charts", { params });
 };
 
-const logout = () => {
-  return axios.post("/api/auth/logout");
+const logout = async () => {
+  try {
+    await axios.post("/api/auth/logout");
+  } finally {
+    clearAuthToken();
+  }
 };
 
 const login = async (email, password) => {
   const { data } = await axios.post("/api/auth/signin", { email, password });
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+};
+
+const signup = async (payload) => {
+  const { data } = await axios.post("/api/auth/signup", payload);
+  if (data.token) {
+    setAuthToken(data.token);
+  }
   return data;
 };
 
 const getCurrentUser = async () => {
+  // Se questa scheda non ha un token in sessionStorage, evita anche la chiamata 401
+  if (!getAuthToken()) {
+    return {};
+  }
   const { data } = await axios.get("/api/auth/currentUser");
   return data;
 };
@@ -118,22 +147,19 @@ const deleteChatSession = async (sessionId) => {
   await axios.delete(`/api/chat/sessions/${sessionId}`);
 };
 
-/**
- * Invia un messaggio e legge in tempo reale lo stream SSE da Ollama.
- * @param {string} sessionId
- * @param {string} message
- * @param {(chunkText: string) => void} onChunk - Callback invocata per ogni nuovo token
- * @param {() => void} onDone - Callback invocata al completamento
- * @param {(errorMsg: string) => void} onError - Callback in caso di errore
- */
 const streamChatMessage = async (sessionId, message, { onChunk, onDone, onError }) => {
   try {
+    const token = getAuthToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`/api/chat/sessions/${sessionId}/stream`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      headers,
       body: JSON.stringify({ message }),
     });
 
@@ -195,6 +221,7 @@ export {
   getCategories,
   getTransactions,
   login,
+  signup,
   logout,
   createTransaction,
   deleteTransaction,

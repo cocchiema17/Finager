@@ -5,7 +5,7 @@ def test_create_and_get_spaces(client):
         "email": "anna.verdi@example.com",
         "password": "securepassword123",
     }
-    reg_res = client.post("/api/auth/register", json=reg_payload)
+    reg_res = client.post("/api/auth/signup", json=reg_payload)
     token = reg_res.cookies.get("session")
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -26,7 +26,7 @@ def test_create_and_get_spaces(client):
 
 def test_update_and_delete_space(client):
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Giovanni",
             "lastName": "Bianchi",
@@ -58,7 +58,7 @@ def test_update_and_delete_space(client):
 
 def test_create_duplicate_space_name(client):
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Marco",
             "lastName": "Neri",

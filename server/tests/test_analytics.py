@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 def test_charts_and_report(client):
     # 1. Registra utente
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Alessandro",
             "lastName": "Manzoni",

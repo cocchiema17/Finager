@@ -1,7 +1,7 @@
 def test_create_transaction_and_auto_category(client):
     # Registra utente e crea space
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Giacomo",
             "lastName": "Leopardi",

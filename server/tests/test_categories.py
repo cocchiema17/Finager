@@ -1,7 +1,7 @@
 def test_create_and_get_categories(client):
     # Registra utente
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Lucia",
             "lastName": "Galli",
@@ -48,7 +48,7 @@ def test_create_and_get_categories(client):
 
 def test_create_category_duplicate_in_same_space(client):
     reg_res = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "Paolo",
             "lastName": "Fontana",
@@ -75,7 +75,7 @@ def test_create_category_duplicate_in_same_space(client):
 def test_create_category_foreign_space_forbidden(client):
     # Utente 1 crea space
     reg1 = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "User1",
             "lastName": "Test",
@@ -89,7 +89,7 @@ def test_create_category_foreign_space_forbidden(client):
 
     # Utente 2 tenta di inserire categoria nello space di Utente 1
     reg2 = client.post(
-        "/api/auth/register",
+        "/api/auth/signup",
         json={
             "firstName": "User2",
             "lastName": "Test",

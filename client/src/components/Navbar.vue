@@ -60,7 +60,6 @@ export default {
   methods: {
     async onLogout() {
       await logout();
-      localStorage.removeItem("csrfToken");
       this.$store.dispatch("isLogged", false);
       this.$store.dispatch("user", null);
       this.$router.push("/");

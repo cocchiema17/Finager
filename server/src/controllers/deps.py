@@ -1,52 +1,52 @@
-from typing import Optional
 from uuid import UUID
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Cookie, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.security import decode_access_token
-from src.repositories.user_repository import UserRepository
 from src.models.user import User
+from src.repositories.user_repository import UserRepository
 
 
 def get_current_user(
-    request: Request,
+    authorization: str | None = Header(default=None),
+    session: str | None = Cookie(default=None),
     db: Session = Depends(get_db),
 ) -> User:
-    """Estrae l'utente loggato verificando il cookie o l'header Authorization."""
-    token: Optional[str] = request.cookies.get("session")
+    token = None
 
-    # Fallback su header Bearer se non presente nei cookie
-    if not token:
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
+    # 1. Priorità all'header Authorization: Bearer <token> (isolato per scheda via sessionStorage)
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ", 1)[1].strip()
+    # 2. Fallback sul cookie 'session' per retrocompatibilità
+    elif session:
+        token = session
 
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
+            detail="Non autenticato",
         )
 
     payload = decode_access_token(token)
     if not payload or "sub" not in payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Sessione non valida o scaduta",
         )
 
     try:
-        user_id = UUID(payload["sub"])
+        user_uuid = UUID(payload["sub"])
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload",
+            detail="ID utente nel token non valido",
         )
 
-    user = UserRepository.get_by_id(db, user_id)
+    user = UserRepository.get_by_id(db, user_uuid)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Utente non trovato",
         )
 
     return user

@@ -1,7 +1,7 @@
 <template>
   <div class="centered-form-wrapper container-fluid bg-app">
     <form class="centered-form" @submit.prevent="onSubmit" novalidate>
-      <h1 class="display-6 mb-5 text-center">Register to Finager!</h1>
+      <h1 class="display-6 mb-5 text-center">Registrati a Finager!</h1>
 
       <Alert
         v-for="e in errorMessages"
@@ -21,7 +21,7 @@
         <div v-if="this.errors.firstName" class="invalid-feedback d-block">
           {{ errors.firstName }}
         </div>
-        <label for="firstName">First name</label>
+        <label for="firstName">Nome</label>
       </div>
 
       <div class="form-floating mb-3">
@@ -35,7 +35,7 @@
         <div v-if="this.errors.lastName" class="invalid-feedback d-block">
           {{ errors.lastName }}
         </div>
-        <label for="lastName">Last name</label>
+        <label for="lastName">Cognome</label>
       </div>
 
       <div class="form-floating mb-3">
@@ -50,7 +50,7 @@
         <div v-if="this.errors.email" class="invalid-feedback d-block">
           {{ errors.email }}
         </div>
-        <label for="email">Email address</label>
+        <label for="email">Indirizzo email</label>
       </div>
       <div class="form-floating mb-3">
         <input
@@ -68,10 +68,10 @@
       </div>
       <div class="d-grid gap-2">
         <button class="btn btn-primary" :disabled="!isSubmitEnabled">
-          Sign up
+          Registrati
         </button>
         <p class="already-registered">
-          <router-link to="login">Already registered?</router-link>
+          <router-link to="login">Già registrato?</router-link>
         </p>
       </div>
     </form>
@@ -80,6 +80,7 @@
 
 <script>
 import Alert from "../components/Alert.vue";
+import { signup } from "../api";
 
 export default {
   name: "RegisterPage",
@@ -162,33 +163,29 @@ export default {
       return value && value.length ? value.length : 0;
     },
     async onSubmit() {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: this.firstName,
-          lastName: this.lastName,
-          email: this.email,
-          password: this.password,
-        }),
+      this.errorMessages = [];
+      try{
+        await signup({
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+        password: this.password,
       });
 
-      if (response.status === 201) {
-        this.$router.push("/login");
-      } else {
-        const { error } = await response.json();
-        if (error) {
-          this.errorMessages = error.errors.map((e, idx) => {
-            return {
-              idx,
-              message: e.message,
-            };
-          });
+      sessionStorage.removeItem("authToken");
+      this.$router.push("/login");
+      } catch (error) {
+        const detail = error.response?.data?.detail;
+        if (Array.isArray(detail)) {
+          this.errorMessages = detail.map((e, idx) => ({
+            idx,
+            message: e.msg || "Validation error",
+          }));
+        } else {
+          this.errorMessages = [{ idx: 0, message: detail || "Registration failed" }];
         }
       }
-    },
+    }
   },
 };
 </script>
