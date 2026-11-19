@@ -23,7 +23,7 @@ class Transaction(Base):
     title = Column(String(40), nullable=False)
     description = Column(String(200), nullable=False)
     type = Column(
-        ENUM(TransactionType, name="transactiontype", create_type=False),
+        ENUM(TransactionType, name="transactiontype", create_type=True),
         nullable=False,
     )
     value = Column(Float, nullable=False)

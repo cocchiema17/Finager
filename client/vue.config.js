@@ -1,11 +1,17 @@
 const { defineConfig } = require("@vue/cli-service");
+
+const apiTarget = process.env.VUE_APP_API_TARGET || "http://127.0.0.1:4000";
+
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
-    compress: false, // Disabilita compressione gzip che bufferizza gli stream SSE
+    host: "0.0.0.0",
+    port: 8080,
+    allowedHosts: "all",
+    compress: false, // Mantiene fluido lo streaming dei chunk per Server-Sent Events
     proxy: {
       "^/api": {
-        target: "http://127.0.0.1:4000",
+        target: apiTarget,
         changeOrigin: true,
         logLevel: "debug",
         ws: true,
