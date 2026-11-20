@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from src.repositories.user_repository import UserRepository
+from src.repositories.space_repository import SpaceRepository
 from src.schemas.user_schema import UserRegister, UserLogin
 from src.core.security import (
     hash_password,
@@ -46,6 +47,10 @@ class AuthService:
             user.password = hash_password(data.password)
             db.commit()
             db.refresh(user)
+
+        # Crea un conto di nome "Principale" in automatico per il nuovo utente se non esiste già
+        if not SpaceRepository.get_by_name_and_user(db, "Principale", user.id):
+            SpaceRepository.create(db, user.id, "Principale")
 
         token = create_access_token(subject=str(user.id))
         return user, token

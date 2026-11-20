@@ -36,6 +36,13 @@ class SpaceService:
     @staticmethod
     def update_space(db: Session, space_id: int, user_id: UUID, data: SpaceUpdate) -> Space:
         space = SpaceRepository.get_by_id(db, space_id)
+
+        if space and space.name == "Principale":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The 'Principale' space cannot be renamed",
+            )
+
         if not space:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -70,6 +77,13 @@ class SpaceService:
     @staticmethod
     def delete_space(db: Session, space_id: int, user_id: UUID) -> None:
         space = SpaceRepository.get_by_id(db, space_id)
+
+        if space and space.name == "Principale":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The 'Principale' space cannot be deleted",
+            )
+
         if not space:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

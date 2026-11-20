@@ -58,6 +58,15 @@ def test_login_success(client):
     assert "token" in response.json()
     assert isinstance(response.json()["token"], str) and len(response.json()["token"]) > 20
 
+    # Verifica della creazione automatica del conto "Principale"
+    token = response.json()["token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    spaces_response = client.get("/api/spaces", headers=headers)
+    assert spaces_response.status_code == 200
+    spaces_data = spaces_response.json()
+    assert len(spaces_data["value"]) == 1
+    assert spaces_data["value"][0]["name"] == "Principale"
+
 
 def test_login_invalid_password(client):
     client.post(
