@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 class TransactionCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=40)
-    description: str = Field(..., min_length=1, max_length=200)
+    description: str = Field(None, max_length=200)
     date: date
     categoryName: str = Field(..., min_length=1, max_length=40)
     color: str = Field(..., min_length=1, max_length=40)
@@ -23,7 +23,7 @@ class TransactionCreate(BaseModel):
 
 class TransactionUpdate(BaseModel):
     title: str = Field(..., min_length=1, max_length=40)
-    description: str = Field(..., min_length=1, max_length=200)
+    description: str = Field(None, max_length=200)
     date: date
     value: float
 

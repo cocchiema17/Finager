@@ -38,7 +38,6 @@
                 type="text"
                 id="description"
                 v-model="description"
-                required
                 maxlength="200"
               />
             </div>

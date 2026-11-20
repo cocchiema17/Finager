@@ -21,7 +21,7 @@ class Transaction(Base):
         server_default=text("gen_random_uuid()"),
     )
     title = Column(String(40), nullable=False)
-    description = Column(String(200), nullable=False)
+    description = Column(String(200), nullable=True)
     type = Column(
         ENUM(TransactionType, name="transactiontype", create_type=True),
         nullable=False,

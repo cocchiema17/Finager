@@ -36,7 +36,6 @@
                 class="form-control"
                 type="text"
                 v-model="description"
-                required
                 maxlength="200"
               />
             </div>
